@@ -1,0 +1,12 @@
+method: getBalance
+rpc-url: http://127.0.0.1:8545
+from-address: [0xaa0502b8C1b388156079f1c9c798095A77AeB8fE]
+from-key: [dad543f62ed1511b905721b29f2dd4fad4c97abd6dfd5d1ddec1ba53d95ea5bb]
+to-address: [0x59A42aEb56997AFfAed6802cB90946D3EB9087d9,0x46A813E2e084669686496940e0C1583b9B042A12]
+contract: 0x2aC3c1d3e24b45c6C310534Bc2Dd84B5ed576335
+decimals: 16
+amount: 1
+chain-id: 5
+gas-limit: 90000
+gas-price: 500000000000
+

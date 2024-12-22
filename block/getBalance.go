@@ -45,7 +45,7 @@ func GetBalance(params *CommandParams) {
 	}
 }
 
-func getBalance(rpcUrl, address string) (amount string, err error){
+func getBalance(rpcUrl, address string) (amount string, err error) {
 	jsonStr := fmt.Sprintf(`{"jsonrpc": "2.0", "id":1, "method": "eth_getBalance", "params": ["%v","latest"]}`, address)
 	payload := strings.NewReader(jsonStr)
 	client := &http.Client{}
@@ -76,7 +76,7 @@ func getBalance(rpcUrl, address string) (amount string, err error){
 	return resp.Result, nil
 }
 
-func getTokenBalance(rpcUrl, address string, contract string) (amount string, err error){
+func getTokenBalance(rpcUrl, address string, contract string) (amount string, err error) {
 	jsonData := fmt.Sprintf("%v%064s", "0x70a08231", address[2:])
 	jsonStr := fmt.Sprintf(`{"jsonrpc": "2.0", "id":1, "method": "eth_call", "params": [{"to":"%v", "data":"%v"},"latest"]}`, contract, jsonData)
 	payload := strings.NewReader(jsonStr)

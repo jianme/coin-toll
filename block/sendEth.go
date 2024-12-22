@@ -5,19 +5,20 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
 	"io/ioutil"
 	"log"
 	"math/big"
 	"net/http"
 	"strings"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/rlp"
 )
 
-func SendEthWithAmount(params *CommandParams) {
+func SendEthWithSameAmount(params *CommandParams) {
 	bigFee := big.NewInt(0).Mul(big.NewInt(params.GasLimit), big.NewInt(params.GasPrice))
 	bigFee = big.NewInt(0).Mul(bigFee, big.NewInt(int64(len(params.ToAddress))))
 
@@ -63,7 +64,93 @@ func SendEthWithAmount(params *CommandParams) {
 	}
 }
 
-func SendEthWithBalance(params *CommandParams) {
+func SendEthWithDiffAmount(params *CommandParams) {
+	bigFee := big.NewInt(0).Mul(big.NewInt(params.GasLimit), big.NewInt(params.GasPrice))
+	bigFee = big.NewInt(0).Mul(bigFee, big.NewInt(int64(len(params.ToAddress))))
+
+	amount, err := getBalance(params.RpcUrl, params.FromAddress[0])
+	if err != nil {
+		log.Fatalf("getBalance err:%v", err)
+	}
+
+	bigAmount, err := GetBigFromHex(amount)
+	if err != nil {
+		log.Fatalf("GetBigFromHex err:%v", err)
+	}
+
+	subFeeAmount := big.NewInt(0).Sub(bigAmount, bigFee)
+	if subFeeAmount.Cmp(big.NewInt(0)) == -1 {
+		log.Fatalf("insufficient balance:%v", subFeeAmount)
+	}
+
+	nonce, err := getTransactionCount(params.RpcUrl, params.FromAddress[0])
+	if err != nil {
+		log.Fatalf("getTransactionCount err:%v", err)
+	}
+
+	for cnt, toAddress := range params.ToAddress {
+
+		balance, err := ToWei(fmt.Sprintf("%v", params.DiffAmount[cnt]), ETH_DECIMALS)
+		if err != nil {
+			log.Fatalf("ToWei err:%v", err)
+		}
+
+		tx := types.NewTransaction(nonce, common.HexToAddress(toAddress), balance, uint64(params.GasLimit), big.NewInt(params.GasPrice), nil)
+		raw, err := SignTransaction(params.ChainID, tx, params.FromKey[0])
+		if err != nil {
+			log.Fatalf("SignTransaction err:%v", err)
+		}
+
+		txID, err := ethSendRawTransaction(params.RpcUrl, raw)
+		if err != nil {
+			log.Fatalf("ethSendRawTransaction err:%v", err)
+		}
+
+		log.Println(params.FromAddress[0], toAddress, txID)
+		nonce++
+	}
+}
+
+func SendEthWithMultiToMulti(params *CommandParams) {
+	for index, fromAddress := range params.FromAddress {
+		amount, err := getBalance(params.RpcUrl, fromAddress)
+		if err != nil {
+			log.Fatalf("getBalance err:%v", err)
+		}
+
+		bigAmount, err := GetBigFromHex(amount)
+		if err != nil {
+			log.Fatalf("GetBigFromHex err:%v", err)
+		}
+
+		bigFee := big.NewInt(0).Mul(big.NewInt(params.GasLimit), big.NewInt(params.GasPrice))
+		balance := big.NewInt(0).Sub(bigAmount, bigFee)
+		if balance.Cmp(big.NewInt(0)) == -1 {
+			log.Fatalf("insufficient balance:%v", balance)
+		}
+
+		nonce, err := getTransactionCount(params.RpcUrl, fromAddress)
+		if err != nil {
+			log.Fatalf("getTransactionCount err:%v", err)
+			return
+		}
+
+		tx := types.NewTransaction(nonce, common.HexToAddress(params.ToAddress[index]), balance, uint64(params.GasLimit), big.NewInt(params.GasPrice), nil)
+		raw, err := SignTransaction(params.ChainID, tx, params.FromKey[index])
+		if err != nil {
+			log.Fatalf("SignTransaction err:%v", err)
+		}
+
+		txID, err := ethSendRawTransaction(params.RpcUrl, raw)
+		if err != nil {
+			log.Fatalf("ethSendRawTransaction err:%v", err)
+		}
+
+		log.Println(fromAddress, params.ToAddress[index], txID)
+	}
+}
+
+func SendEthWithMultiToOne(params *CommandParams) {
 	for index, fromAddress := range params.FromAddress {
 		amount, err := getBalance(params.RpcUrl, fromAddress)
 		if err != nil {

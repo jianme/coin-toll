@@ -9,17 +9,18 @@ import (
 )
 
 type CommandParams struct {
-	Method string
-	RpcUrl string
+	Method      string
+	RpcUrl      string
 	FromAddress []string
-	FromKey []string
-	ToAddress []string
-	Contract string
-	Decimals int
-	Amount float64
-	ChainID int64
-	GasLimit int64
-	GasPrice int64
+	FromKey     []string
+	ToAddress   []string
+	DiffAmount  []string
+	Contract    string
+	Decimals    int
+	Amount      float64
+	ChainID     int64
+	GasLimit    int64
+	GasPrice    int64
 }
 
 var ETH_DECIMALS = 18
@@ -44,7 +45,7 @@ func GetBigFromHex(hexamount string) (*big.Int, error) {
 	return n, nil
 }
 
-//wei -> count
+// wei -> count
 func EthFromWei(bigs *big.Int) (strvalue string, err error) {
 	strvalue = "0"
 	decimals := ETH_DECIMALS
@@ -75,7 +76,7 @@ func EthFromWei(bigs *big.Int) (strvalue string, err error) {
 	return
 }
 
-//wei -> count
+// wei -> count
 func FromWeiWithDecimals(s string, decimals int) (strvalue string, err error) {
 
 	strvalue = "0"
@@ -176,4 +177,3 @@ func ToWei(svalue string, decimals int) (amount *big.Int, err error) {
 
 	return
 }
-

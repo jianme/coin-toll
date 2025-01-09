@@ -28,20 +28,21 @@ func GetBalance(params *CommandParams) {
 			log.Fatalf("FromWeiWithDecimals err:%v", err)
 			return
 		}
-		log.Println(address, balance)
+		fmt.Println(balance)
+		/*
+			bigAmount, err = getTokenBalance(params.RpcUrl, address, params.Contract)
+			if err != nil {
+				log.Fatalf("getTokenBalance err:%v", err)
+				return
+			}
 
-		bigAmount, err = getTokenBalance(params.RpcUrl, address, params.Contract)
-		if err != nil {
-			log.Fatalf("getTokenBalance err:%v", err)
-			return
-		}
-
-		balance, err = FromWeiWithDecimals(bigAmount, params.Decimals)
-		if err != nil {
-			log.Fatalf("FromWeiWithDecimals err:%v", err)
-			return
-		}
-		log.Println(address, balance)
+			balance, err = FromWeiWithDecimals(bigAmount, params.Decimals)
+			if err != nil {
+				log.Fatalf("FromWeiWithDecimals err:%v", err)
+				return
+			}
+			log.Println(address, balance)
+		*/
 	}
 }
 

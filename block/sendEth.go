@@ -10,6 +10,7 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -61,6 +62,7 @@ func SendEthWithSameAmount(params *CommandParams) {
 
 		log.Println(params.FromAddress[0], toAddress, txID)
 		nonce++
+		time.Sleep(2 * time.Second)
 	}
 }
 
@@ -108,6 +110,7 @@ func SendEthWithDiffAmount(params *CommandParams) {
 
 		log.Println(params.FromAddress[0], toAddress, txID)
 		nonce++
+		time.Sleep(2 * time.Second)
 	}
 }
 
@@ -126,6 +129,7 @@ func SendEthWithMultiToMulti(params *CommandParams) {
 		bigFee := big.NewInt(0).Mul(big.NewInt(params.GasLimit), big.NewInt(params.GasPrice))
 		balance := big.NewInt(0).Sub(bigAmount, bigFee)
 		if balance.Cmp(big.NewInt(0)) == -1 {
+			continue
 			log.Fatalf("insufficient balance:%v", balance)
 		}
 
@@ -147,6 +151,7 @@ func SendEthWithMultiToMulti(params *CommandParams) {
 		}
 
 		log.Println(fromAddress, params.ToAddress[index], txID)
+		//time.Sleep(time.Second)
 	}
 }
 
